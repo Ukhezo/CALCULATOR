@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+      <head>
+           <meta charset="UTF-8">
+           <meta name="viewport" content="width=device-width, initial-scale=1">
+           <title>Calculator</title>
+           <link rel="stylesheet" type="text/css" href="style.css">
+      </head>
+      <body>
+            <table>
+                <tr>
+                    <td colspan="4">
+                        <input type="text" id="inputBox" value="0" readonly/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="digitButton" onclick="digitBtnPressed(7)">7</td>
+                    <td class="digitButton" onclick="digitBtnPressed(8)">8</td>
+                    <td class="digitButton" onclick="digitBtnPressed(9)">9</td>
+                    <td class="operatorButton" onclick="operatorBtnPressed('*')">x</td>
+                </tr>
+                <tr>
+                    <td class="digitButton" onclick="digitBtnPressed(4)">4</td>
+                    <td class="digitButton" onclick="digitBtnPressed(5)">5</td>
+                    <td class="digitButton" onclick="digitBtnPressed(6)">6</td>
+                    <td class="operatorButton" onclick="operatorBtnPressed('-')">-</td>
+                </tr>
+                <tr>
+                    <td class="digitButton" onclick="digitBtnPressed(1)">1</td>
+                    <td class="digitButton" onclick="digitBtnPressed(2)">2</td>
+                    <td class="digitButton" onclick="digitBtnPressed(3)">3</td>
+                    <td class="operatorButton" onclick="operatorBtnPressed('+')">+</td>
+                </tr>
+                <tr>
+                    <td class="digitButton" onclick="digitBtnPressed(0)">0</td>
+                    <td class="digitButton" onclick="decimalBtnPressed()">.</td>
+                    <td class="ACButton" onclick="btnACPressed()">AC</td>
+                    <td class="operatorButton" onclick="operatorBtnPressed('/')">/</td>
+                </tr>
+                <tr>
+                    <td class="operatorButton" colspan="4" onclick="equalBtnPressed()">=</td>
+                </tr>
+            </table>
+
+            <script>
+                var newLine = true; //Determines if the next digit starts a new number
+                var value1 = null;  //The first number in the sum
+                var currentOperator = null;
+
+                function getInput(){
+                    return document.getElementById("inputBox");
+                }
+
+                //Event handler for when any digit button is pressed
+                function digitBtnPressed(button){
+                    var box = getInput();
+                    if(newLine || box.value === "0"){
+                        box.value = button;
+                        newLine = false;
+                    } else {
+                        box.value = box.value + button;
+                    }
+                }
+
+                //Event handler for the decimal point button
+                function decimalBtnPressed(){
+                    var box = getInput();
+                    if(newLine){
+                        box.value = "0.";
+                        newLine = false;
+                    } else if(box.value.indexOf(".") === -1){
+                        box.value = box.value + ".";
+                    }
+                }
+
+                //Event handler for when the AC button is pressed
+                function btnACPressed(){
+                    getInput().value = 0;
+                    value1 = null;
+                    currentOperator = null;
+                    newLine = true;
+                }
+
+                //Works out value1 (operator) value2
+                function calculate(a, operator, b){
+                    switch(operator){
+                        case "+": return a + b;
+                        case "-": return a - b;
+                        case "*": return a * b;
+                        case "/": return b === 0 ? "Error" : a / b;
+                    }
+                    return b;
+                }
+
+                //Tidies long decimals like 0.1 + 0.2 = 0.30000000000000004
+                function tidy(number){
+                    if(typeof number !== "number") return number;
+                    return parseFloat(number.toFixed(10));
+                }
+
+                //Event handler for operator buttons
+                function operatorBtnPressed(operator){
+                    var current = parseFloat(getInput().value);
+                    if(isNaN(current)) current = 0;
+                    //Lets you chain sums like 2 + 3 + 4
+                    if(currentOperator !== null && value1 !== null && !newLine){
+                        current = tidy(calculate(value1, currentOperator, current));
+                        getInput().value = current;
+                    }
+                    value1 = current === "Error" ? null : current;
+                    currentOperator = operator;
+                    newLine = true;
+                }
+
+                //Event handler for the equals button
+                function equalBtnPressed(){
+                    if(currentOperator === null || value1 === null) return;
+                    var value2 = parseFloat(getInput().value);
+                    getInput().value = tidy(calculate(value1, currentOperator, value2));
+                    value1 = null;
+                    currentOperator = null;
+                    newLine = true;
+                }
+            </script>
+      </body>
+</html>
